@@ -20,39 +20,50 @@ const handleItemNameChange = function () {
     const id = getItemIdFromElement(event.currentTarget);
     // rename the item.
     renameItem(id);
-    generateRenameForm(id);
+    generateItemElement(id);
+    handleNewItemButton();
+    //generateRenameForm(id);
     // Render the updated shopping list.
-    render();
   });
 };
-// Function to change the name property to the users input.
+const handleNewItemButton = function(){
+  $('.js-shopping-list').submit( function (event) {
+    event.preventDefault();
+    const newItemName = $('.js-update-item').val();
+    $('.js-update-item').val('');
+    addItemToShoppingList(newItemName);
+    render();
+  });
+
+};
+
+
+// Function to change the Store item.
 const renameItem = function (id) {
   console.log('renameItem ran');
   const index = store.items.findIndex(item => item.id === id);
-  // This is going to change the name to the user input
-  store.items.name = 'user input';
+  // This is going to change the state of update in the store. 
+  store.items[index].update = !store.items[index].update;
+  console.log(generateItemElement(index));
+  render();
 };
-
-// generateForm element to rename Item
-const generateRenameForm = function( item ){
-  let updateItem = ``;
-  if (!item.update){
-    updateItem = `
-    <form id="js-rename-form">
-      <label for="shopping-list-rename-item">Item name</label>
-      <input type="text" name="shopping-list-entry" class="js-shopping-list-entry" placeholder="e.g., broccoli">
-      <button type="submit">Update item</button>
-    </form>`;
-  }
-};
-
 
 const generateItemElement = function (item) {
+  
   let itemTitle = `<span class='shopping-item shopping-item__checked'>${item.name}</span>`;
   if (!item.checked) {
     itemTitle = `
      <span class='shopping-item'>${item.name}</span>
     `;
+  } 
+  // this is not working. It should evaluate that the item was checked and the new value of update is true and export this HTML form.
+  if (item.update && !item.checked){
+    
+    return `
+    <form id="js-rename-form">
+    <input type="text" name="js-update-item" class="js-update-item" placeholder="e.g., broccoli">
+    <button type="submit">Update item</button>
+  </form>`;
   }
 
   return `
@@ -89,7 +100,6 @@ const render = function () {
   if (store.hideCheckedItems) {
     items = items.filter(item => !item.checked);
   }
-
   /**
    * At this point, all filtering work has been 
    * done (or not done, if that's the current settings), 
