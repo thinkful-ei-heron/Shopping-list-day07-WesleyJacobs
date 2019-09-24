@@ -2,12 +2,13 @@
 const store = {
   items: [
     // Added update and default to false. If this is changed the render will show a form to update the name.
-    { id: cuid(), name: 'apples', checked: false, update:false },
-    { id: cuid(), name: 'oranges', checked: false, update:false  },
-    { id: cuid(), name: 'milk', checked: true, update:false  },
-    { id: cuid(), name: 'bread', checked: false, update:false  }
+    { id: cuid(), name: 'apples', checked: false},
+    { id: cuid(), name: 'oranges', checked: false},
+    { id: cuid(), name: 'milk', checked: true},
+    { id: cuid(), name: 'bread', checked: false}
   ],
-  hideCheckedItems: false
+  hideCheckedItems: false,
+  update: null
 };
 
 
@@ -21,17 +22,22 @@ const handleItemNameChange = function () {
     // rename the item.
     renameItem(id);
     generateItemElement(id);
-    handleNewItemButton();
+    handleUpdateItemButton();
     //generateRenameForm(id);
     // Render the updated shopping list.
   });
 };
-const handleNewItemButton = function(){
+const handleUpdateItemButton = function(){
   $('.js-shopping-list').submit( function (event) {
     event.preventDefault();
     const newItemName = $('.js-update-item').val();
+    
     $('.js-update-item').val('');
     addItemToShoppingList(newItemName);
+    $('#js-rename-form').remove();
+    $('.js-shopping-list').off('submit');
+    store.items.splice(store.items.indexOf(store.update),1);
+    store.update= false;
     render();
   });
 
@@ -43,10 +49,16 @@ const renameItem = function (id) {
   console.log('renameItem ran');
   const index = store.items.findIndex(item => item.id === id);
   // This is going to change the state of update in the store. 
-  store.items[index].update = !store.items[index].update;
-  console.log(generateItemElement(index));
+  store.update = store.items[index];
+  //console.log(generateItemElement(index));
   render();
 };
+
+
+// const updateStoreForNewItem = function(id) {
+//   const index = store.items.findIndex(item => item.id === id);
+//   store
+//  }
 
 const generateItemElement = function (item) {
   
@@ -57,7 +69,7 @@ const generateItemElement = function (item) {
     `;
   } 
   // this is not working. It should evaluate that the item was checked and the new value of update is true and export this HTML form.
-  if (item.update && !item.checked){
+  if (store.update && item.id === store.update.id && !item.checked){
     
     return `
     <form id="js-rename-form">
