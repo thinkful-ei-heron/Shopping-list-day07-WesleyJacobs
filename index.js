@@ -1,12 +1,51 @@
+'use strict';
 const store = {
   items: [
-    { id: cuid(), name: 'apples', checked: false },
-    { id: cuid(), name: 'oranges', checked: false },
-    { id: cuid(), name: 'milk', checked: true },
-    { id: cuid(), name: 'bread', checked: false }
+    // Added update and default to false. If this is changed the render will show a form to update the name.
+    { id: cuid(), name: 'apples', checked: false, update:false },
+    { id: cuid(), name: 'oranges', checked: false, update:false  },
+    { id: cuid(), name: 'milk', checked: true, update:false  },
+    { id: cuid(), name: 'bread', checked: false, update:false  }
   ],
   hideCheckedItems: false
 };
+
+
+// Handle click on the name of item.
+const handleItemNameChange = function () {
+  // Like in `handleItemCheckClicked`, 
+  // we use event delegation.
+  $('.js-shopping-list').on('click', '.shopping-item', event => {
+    // Get the index of the item in store.items.
+    const id = getItemIdFromElement(event.currentTarget);
+    // rename the item.
+    renameItem(id);
+    generateRenameForm(id);
+    // Render the updated shopping list.
+    render();
+  });
+};
+// Function to change the name property to the users input.
+const renameItem = function (id) {
+  console.log('renameItem ran');
+  const index = store.items.findIndex(item => item.id === id);
+  // This is going to change the name to the user input
+  store.items.name = 'user input';
+};
+
+// generateForm element to rename Item
+const generateRenameForm = function( item ){
+  let updateItem = ``;
+  if (!item.update){
+    updateItem = `
+    <form id="js-rename-form">
+      <label for="shopping-list-rename-item">Item name</label>
+      <input type="text" name="shopping-list-entry" class="js-shopping-list-entry" placeholder="e.g., broccoli">
+      <button type="submit">Update item</button>
+    </form>`;
+  }
+};
+
 
 const generateItemElement = function (item) {
   let itemTitle = `<span class='shopping-item shopping-item__checked'>${item.name}</span>`;
@@ -158,6 +197,7 @@ const handleShoppingList = function () {
   render();
   handleNewItemSubmit();
   handleItemCheckClicked();
+  handleItemNameChange();
   handleDeleteItemClicked();
   handleToggleFilterClick();
 };
